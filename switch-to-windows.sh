@@ -11,6 +11,19 @@ if ! command -v cliclick &> /dev/null; then
     exit 1
 fi
 
+# Check accessibility permissions
+if ! osascript -e 'tell application "System Events" to get name of first process' &>/dev/null; then
+    echo "ERROR: Accessibility permissions not granted."
+    echo "1. Go to: System Settings > Privacy & Security > Accessibility"
+    echo "Add Terminal to the list."
+
+    echo "2. Go to: System Settings > Privacy & Security > Automation > Terminal"
+    echo "Make sure both System Events and System Settings are selected"
+
+    exit 1
+fi
+
+
 echo "Opening Startup Disk preferences..."
 open "x-apple.systempreferences:com.apple.preference.startupdisk"
 sleep 3
@@ -24,18 +37,13 @@ end tell
 sleep 1
 
 echo "Selecting BOOTCAMP..."
-cliclick c:400,300
+cliclick c:600,300
 sleep 1
-cliclick c:400,350
+cliclick c:600,350
 sleep 2
 
-echo "Clicking Restart..."
-cliclick c:400,500
-sleep 1
-
 echo "Entering password..."
-cliclick t:"$MACOS_PASSWORD"
-cliclick kp:return
+cliclick t:"$MACOS_PASSWORD" kp:return
 sleep 2
 
 echo "Rebooting..."
