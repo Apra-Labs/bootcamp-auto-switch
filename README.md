@@ -19,10 +19,24 @@ GUI automation scripts for each OS:
 brew install cliclick
 ```
 
+**First-time setup:** Grant accessibility permissions to the app running the script:
+
+1. Run the script once - it will fail but trigger the permission prompt
+2. Go to **System Settings → Privacy & Security → Accessibility**
+3. Enable the app that's running the script:
+   - **Terminal.app** - if running from Terminal
+   - **iTerm** - if using iTerm
+   - **GitHub Runner** - if running via GitHub Actions (usually located in `~/actions-runner`)
+4. Run the script again
+
+Without accessibility permissions, cliclick cannot send clicks/keystrokes.
+
 ### Windows
 ```powershell
 winget install AutoHotkey.AutoHotkey
 ```
+
+**First-time setup:** Ensure Boot Camp icon is in the system tray overflow area (click the `^` arrow in taskbar to verify).
 
 ## Usage
 
@@ -133,9 +147,39 @@ Use a single Mac as a dual-OS self-hosted runner. The workflow re-queues itself 
 
 ## Troubleshooting
 
-- **macOS**: Grant Accessibility permissions to Terminal
-- **Windows**: Ensure Boot Camp icon is in the overflow tray
-- **Boot issues**: Hold `Option` at startup to manually select disk
+### macOS
+
+**"cliclick" cannot be opened because it is from an unidentified developer**
+```bash
+xattr -d com.apple.quarantine $(which cliclick)
+```
+
+**Script runs but nothing happens**
+- Check accessibility permissions: System Settings → Privacy & Security → Accessibility
+- Ensure Terminal/iTerm/runner app is listed and enabled
+- Try removing and re-adding the app from the list
+
+**Clicks go to wrong location**
+- Display resolution may differ from script coordinates
+- Edit `switch-to-windows.sh` and adjust coordinates for your setup
+
+### Windows
+
+**Boot Camp not found**
+- Ensure Boot Camp icon is in the overflow tray (click `^` in taskbar)
+- Check no other tray icon starts with 'B' (keyboard shortcut conflict)
+- Verify AutoHotkey v2 is installed (not v1)
+
+**AutoHotkey not found**
+```powershell
+winget install AutoHotkey.AutoHotkey
+```
+
+### Boot issues
+
+- **Manual selection:** Hold `Option` at startup to pick boot disk
+- **Recovery:** Hold `Cmd+R` at startup for Recovery Mode
+- **NVRAM reset:** Hold `Option+Cmd+P+R` for 20 seconds
 
 ## License
 
