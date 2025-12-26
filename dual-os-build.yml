@@ -1,0 +1,64 @@
+# GitHub Actions workflow for dual-OS self-hosted runner
+# Place in .github/workflows/dual-os-build.yml
+#
+# Required setup:
+#   1. Install gh CLI on runner (both OS)
+#   2. Create PAT with 'repo' and 'workflow' scopes
+#   3. Add secrets: WORKFLOW_PAT, MACOS_PASSWORD
+
+name: Dual OS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_os:
+        description: 'Target OS for build'
+        required: true
+        type: choice
+        options:
+          - windows
+          - macos
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check OS and requeue if needed (macOS runner)
+        if: runner.os == 'macOS' && inputs.target_os == 'windows'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          MACOS_PASSWORD: ${{ secrets.MACOS_PASSWORD }}
+        run: |
+          echo "On macOS, need Windows. Re-queueing and rebooting..."
+          gh workflow run "${{ github.workflow }}" -f target_os=${{ inputs.target_os }}
+          sleep 5
+          chmod +x ./switch-to-windows.sh
+          ./switch-to-windows.sh
+          exit 1
+
+      - name: Check OS and requeue if needed (Windows runner)
+        if: runner.os == 'Windows' && inputs.target_os == 'macos'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+        shell: pwsh
+        run: |
+          Write-Host "On Windows, need macOS. Re-queueing and rebooting..."
+          gh workflow run "${{ github.workflow }}" -f target_os=${{ inputs.target_os }}
+          Start-Sleep -Seconds 5
+          .\switch-to-macos.ps1
+          exit 1
+
+      - name: Build on Windows
+        if: inputs.target_os == 'windows' && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Building on Windows..."
+          # Your Windows build commands here
+
+      - name: Build on macOS
+        if: inputs.target_os == 'macos' && runner.os == 'macOS'
+        run: |
+          echo "Building on macOS..."
+          # Your macOS build commands here
