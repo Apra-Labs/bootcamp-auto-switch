@@ -19,17 +19,21 @@ GUI automation scripts for each OS:
 brew install cliclick
 ```
 
-**First-time setup:** Grant accessibility permissions to the app running the script:
+**First-time setup:** Grant the following permissions to the app running the script:
 
-1. Run the script once - it will fail but trigger the permission prompt
-2. Go to **System Settings → Privacy & Security → Accessibility**
-3. Enable the app that's running the script:
-   - **Terminal.app** - if running from Terminal
-   - **iTerm** - if using iTerm
-   - **GitHub Runner** - if running via GitHub Actions (usually located in `~/actions-runner`)
-4. Run the script again
+1. **Accessibility permissions:**
+   - Go to **System Settings → Privacy & Security → Accessibility**
+   - Add and enable the app that's running the script:
+     - **Terminal.app** - if running from Terminal
+     - **iTerm** - if using iTerm
+     - **GitHub Runner** - if running via GitHub Actions (usually located in `~/actions-runner`)
 
-Without accessibility permissions, cliclick cannot send clicks/keystrokes.
+2. **Automation permissions:**
+   - Go to **System Settings → Privacy & Security → Automation**
+   - Find your terminal app (Terminal, iTerm, etc.)
+   - Enable both **System Events** and **System Settings**
+
+Without these permissions, the script cannot interact with System Preferences or send clicks/keystrokes.
 
 ### Windows
 ```powershell
@@ -156,7 +160,9 @@ xattr -d com.apple.quarantine $(which cliclick)
 
 **Script runs but nothing happens**
 - Check accessibility permissions: System Settings → Privacy & Security → Accessibility
-- Ensure Terminal/iTerm/runner app is listed and enabled
+- Check automation permissions: System Settings → Privacy & Security → Automation
+  - Ensure System Events and System Settings are enabled for your terminal app
+- Ensure Terminal/iTerm/runner app is listed and enabled in both sections
 - Try removing and re-adding the app from the list
 
 **Clicks go to wrong location**
